@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Arena</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <!-- ═══════════════════ LOGIN OVERLAY ═══════════════════ -->
+    <div id="login-overlay">
+        <div class="login-shell">
+
+            <header class="login-header">
+                <div class="brand">
+                    <span class="brand-icon">◈</span>
+                    <span class="brand-name">SUDOKU ARENA</span>
+                </div>
+                <div class="header-actions">
+                    <button class="ghost-btn" onclick="toggleTheme()" id="overlay-theme-toggle" aria-label="Toggle theme">
+                        <span class="theme-icon">☀</span>
+                    </button>
+                    <a href="#" class="ghost-btn">GitHub</a>
+                </div>
+            </header>
+
+            <main class="login-main">
+                <div class="auth-card">
+                    <div class="auth-card-inner">
+
+                        <div class="auth-eyebrow">Welcome to the Arena</div>
+                        <h1 id="auth-title" class="auth-heading">Create Account</h1>
+                        <p class="auth-sub" id="auth-note">Join thousands of solvers. Track your progress.</p>
+
+                        <div class="tab-row">
+                            <button id="signup-tab" class="tab active" onclick="setAuthMode('register')">Sign Up</button>
+                            <button id="login-tab" class="tab" onclick="setAuthMode('login')">Log In</button>
+                        </div>
+
+                        <div class="fields">
+                            <div class="field-group">
+                                <label class="field-label" for="username-input">Username</label>
+                                <div class="input-wrap">
+                                    <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                                    <input type="text" id="username-input" placeholder="john_doe" autocomplete="username">
+                                </div>
+                            </div>
+
+                            <div id="email-field" class="field-group">
+                                <label class="field-label" for="email-input">Email</label>
+                                <div class="input-wrap">
+                                    <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                                    <input type="email" id="email-input" placeholder="your@email.com" autocomplete="email">
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label" for="password-input">Password</label>
+                                <div class="input-wrap">
+                                    <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                                    <input type="password" id="password-input" placeholder="Enter password" autocomplete="current-password">
+                                </div>
+                            </div>
+
+                            <div id="confirm-password-wrapper" class="field-group">
+                                <label class="field-label" for="confirm-password-input">Confirm Password</label>
+                                <div class="input-wrap">
+                                    <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                                    <input type="password" id="confirm-password-input" placeholder="Confirm password" autocomplete="new-password">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="auth-submit" type="button" class="primary-btn full" onclick="submitAuth()">
+                            <span>SIGN UP</span>
+                            <svg viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        </button>
+
+                        <p class="auth-switch" id="auth-switch-text">
+                            Already have an account? <button class="link-btn" onclick="setAuthMode('login')">Log in</button>
+                        </p>
+
+                        <div id="auth-error" class="auth-error" role="alert" aria-live="polite"></div>
+                    </div>
+
+                    <div class="auth-card-deco" aria-hidden="true">
+                        <div class="mini-grid">
+                            <div class="mg-cell f">5</div><div class="mg-cell">3</div><div class="mg-cell f">7</div>
+                            <div class="mg-cell f">6</div><div class="mg-cell"></div><div class="mg-cell f">1</div>
+                            <div class="mg-cell f">9</div><div class="mg-cell f">8</div><div class="mg-cell"></div>
+                            <div class="mg-cell f">8</div><div class="mg-cell"></div><div class="mg-cell"></div>
+                            <div class="mg-cell"></div><div class="mg-cell f">6</div><div class="mg-cell"></div>
+                            <div class="mg-cell"></div><div class="mg-cell"></div><div class="mg-cell f">3</div>
+                            <div class="mg-cell f">4</div><div class="mg-cell"></div><div class="mg-cell"></div>
+                            <div class="mg-cell f">8</div><div class="mg-cell"></div><div class="mg-cell f">3</div>
+                            <div class="mg-cell f">7</div><div class="mg-cell f">9</div><div class="mg-cell f">1</div>
+                        </div>
+                        <div class="deco-label">SOLVE · COMPETE · IMPROVE</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ═══════════════════ WIN MODAL ═══════════════════ -->
+    <div id="win-modal" class="modal-backdrop" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="win-title">
+        <div class="modal-panel animate-pop">
+            <div class="win-glow"></div>
+            <div class="win-icon">◈</div>
+            <h2 id="win-title" class="win-heading">Puzzle Solved</h2>
+            <div id="star-rating" class="win-stars">★★★</div>
+            <button class="primary-btn" onclick="nextLevel()">
+                <span>Next Puzzle</span>
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════ APP ═══════════════════ -->
+    <div class="app-layout">
+
+        <!-- Sidebar / Top Nav -->
+        <header class="app-header">
+            <div class="app-brand">
+                <span class="brand-icon">◈</span>
+                <span class="brand-name">SUDOKU ARENA</span>
+            </div>
+            <nav class="app-nav">
+                <button onclick="showSection('arena')" id="nav-arena" class="nav-pill active">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="15"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg>
+                    Arena
+                </button>
+                <button onclick="showSection('ai-lab')" id="nav-ai-lab" class="nav-pill">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="15"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.396 0 2.7.37 3.8 1.02A7.969 7.969 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                    AI Lab
+                </button>
+            </nav>
+            <div class="header-end">
+                <div class="player-chip" id="user-label">GUEST</div>
+                <button class="icon-pill" onclick="toggleTheme()" id="theme-toggle" aria-label="Toggle theme">
+                    <span class="theme-icon">☀</span>
+                </button>
+                <button onclick="quitGame()" class="icon-pill danger" aria-label="Logout">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="15"><path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- ═══ ARENA SECTION ═══ -->
+        <main id="arena-section" class="arena-layout">
+
+            <!-- Left: Controls -->
+            <aside class="arena-sidebar">
+
+                <div class="stat-strip">
+                    <div class="stat-item">
+                        <span class="stat-label">Time</span>
+                        <span class="stat-val mono" id="timer">00:00</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-label">Stars</span>
+                        <span class="stat-val mono" id="star-count">0</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-label">Mistakes</span>
+                        <span class="stat-val mono" id="mistake-counter">0</span>
+                    </div>
+                </div>
+
+                <div class="difficulty-selector">
+                    <label class="field-label">Difficulty</label>
+                    <div class="diff-pills">
+                        <label class="diff-pill">
+                            <input type="radio" name="difficulty" value="45" checked onchange="fetchNewPuzzle()"> Easy
+                        </label>
+                        <label class="diff-pill" id="diff-med-label">
+                            <input type="radio" name="difficulty" value="32" id="opt-med" disabled onchange="fetchNewPuzzle()"> Medium
+                        </label>
+                        <label class="diff-pill" id="diff-hard-label">
+                            <input type="radio" name="difficulty" value="20" id="opt-hard" disabled onchange="fetchNewPuzzle()"> Hard
+                        </label>
+                    </div>
+                    <!-- Keep hidden select for backward compatibility with JS -->
+                    <select id="difficulty-select" style="display:none;" onchange="fetchNewPuzzle()">
+                        <option value="45">Easy</option>
+                        <option value="32" id="opt-med-sel">Medium</option>
+                        <option value="20" id="opt-hard-sel">Hard</option>
+                    </select>
+                </div>
+
+                <div class="action-group">
+                    <button class="ctrl-btn primary" id="pause-btn" onclick="toggleGame()">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                        Start
+                    </button>
+                    <button class="ctrl-btn" onclick="fetchNewPuzzle()">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+                        New Game
+                    </button>
+                    <button class="ctrl-btn" onclick="getAIHint()">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+                        Hint
+                    </button>
+                    <button class="ctrl-btn danger" onclick="quitGame()">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        Quit
+                    </button>
+                </div>
+
+                <div class="ai-coach-card">
+                    <div class="coach-header">
+                        <span class="coach-badge">AI</span>
+                        <span class="coach-title">Coach</span>
+                    </div>
+                    <p id="ai-message" class="coach-message">System online. Ready to analyze your moves...</p>
+                    <button class="coach-hint-btn" onclick="getAIHint()">Ask for hint →</button>
+                </div>
+
+            </aside>
+
+            <!-- Center: Board -->
+            <section class="board-section">
+                <div id="board-container">
+                    <div id="sudoku-board" role="grid" aria-label="Sudoku puzzle"></div>
+                    <div id="pause-overlay">
+                        <div class="overlay-card">
+                            <div class="overlay-icon">◈</div>
+                            <h2 id="overlay-status" class="overlay-heading">Ready?</h2>
+                            <button class="primary-btn" id="resume-btn" onclick="toggleGame()">
+                                <span>Begin</span>
+                                <svg viewBox="0 0 20 20" fill="currentColor" width="14"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Number pad -->
+                <div class="numpad" role="group" aria-label="Number input">
+                    <button class="numpad-btn" data-num="1" aria-label="Input 1">1</button>
+                    <button class="numpad-btn" data-num="2" aria-label="Input 2">2</button>
+                    <button class="numpad-btn" data-num="3" aria-label="Input 3">3</button>
+                    <button class="numpad-btn" data-num="4" aria-label="Input 4">4</button>
+                    <button class="numpad-btn" data-num="5" aria-label="Input 5">5</button>
+                    <button class="numpad-btn" data-num="6" aria-label="Input 6">6</button>
+                    <button class="numpad-btn" data-num="7" aria-label="Input 7">7</button>
+                    <button class="numpad-btn" data-num="8" aria-label="Input 8">8</button>
+                    <button class="numpad-btn" data-num="9" aria-label="Input 9">9</button>
+                    <button class="numpad-btn erase" id="erase-btn" data-num="0" aria-label="Erase">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="18"><path fill-rule="evenodd" d="M6.707 4.879A3 3 0 018.828 4H15a3 3 0 013 3v6a3 3 0 01-3 3H8.828a3 3 0 01-2.12-.879l-4-4a1 1 0 010-1.414l4.547-4.547 1.952 1.952zM6 7l4 4-4 4V7z" clip-rule="evenodd"/></svg>
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ═══ EMAIL VERIFICATION BANNER ═══ -->
+        <div id="verify-banner" class="verify-banner" style="display:none;" role="alert">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" style="flex-shrink:0"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            <span id="verify-banner-text">Please verify your email address to unlock all features.</span>
+            <button class="verify-resend-btn" id="resend-btn" onclick="resendVerification()">Resend email</button>
+            <button class="verify-dismiss-btn" onclick="document.getElementById('verify-banner').style.display='none'" aria-label="Dismiss">&#x2715;</button>
+        </div>
+
+        <!-- ═══ AI LAB SECTION ═══ -->
+        <main id="ai-lab-section" class="lab-layout" style="display:none;">
+
+            <div class="lab-grid">
+                <div class="lab-card">
+                    <h3 class="lab-card-title">Performance</h3>
+                    <div class="stats-list">
+                        <div class="stat-row"><span class="sr-label">Games Played</span><span class="sr-val mono" id="games-played">—</span></div>
+                        <div class="stat-row"><span class="sr-label">Avg. Time</span><span class="sr-val mono" id="avg-time">—</span> <span class="sr-unit">sec</span></div>
+                        <div class="stat-row"><span class="sr-label">Best Time</span><span class="sr-val mono" id="best-time">—</span> <span class="sr-unit">sec</span></div>
+                        <div class="stat-row"><span class="sr-label">Accuracy</span><span class="sr-val mono" id="accuracy">—</span><span class="sr-unit">%</span></div>
+                    </div>
+                </div>
+
+                <div class="lab-card wide">
+                    <h3 class="lab-card-title">Mistake Heatmap</h3>
+                    <div id="mistake-heatmap" class="heatmap-container"></div>
+                </div>
+
+                <div class="lab-card">
+                    <h3 class="lab-card-title">Daily AI Feedback</h3>
+                    <div id="tips-content" class="tips-content"></div>
+                </div>
+
+                <!-- Daily puzzle card — preview + play button -->
+                <div class="lab-card daily-puzzle-card">
+                    <div class="daily-puzzle-header">
+                        <h3 class="lab-card-title" style="margin-bottom:0;">Today's Personal Puzzle</h3>
+                        <span class="daily-date-chip" id="daily-date-chip">—</span>
+                    </div>
+                    <div id="preview-board" class="preview-board"></div>
+                    <p id="preview-desc" class="preview-desc"></p>
+                    <button class="primary-btn full daily-play-btn" id="play-daily-btn" onclick="playDailyPuzzle()" style="margin-top:14px;">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                        <span>Play Daily Puzzle</span>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
