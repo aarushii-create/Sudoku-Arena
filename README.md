@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sudoku Arena
 
 A polished browser-based Sudoku app with a Python backend, user accounts,
@@ -148,3 +149,6 @@ docker run -p 8000:8000 \
 - Add unit tests for generator and database logic
 - Add a leaderboard or competitive mode
 - Improve AI analysis with real mistake heatmaps
+=======
+# Sudoku-Arena
+>>>>>>> 66b3e665d3aa9d5ee2c19d1f6f6f65d2d38c6b5a
